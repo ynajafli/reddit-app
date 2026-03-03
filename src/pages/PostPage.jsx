@@ -1,23 +1,26 @@
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { selectPostById, fetchPopularPosts, selectPostsStatus } from "../features/posts/postsSlice";
+import { selectPostById, fetchPostById, selectSinglePostStatus, selectSinglePostError } from "../features/posts/postsSlice";
 import { useEffect } from "react";
 
 const PostPage = () => {
     let { postId } = useParams();
     const post = useSelector(selectPostById(postId));
-    const postsStatus = useSelector(selectPostsStatus)
+
+    const singlePostStatus = useSelector(selectSinglePostStatus);
+    const singlePostError = useSelector(selectSinglePostError);
     const dispatch = useDispatch();
 
     useEffect(() => {
         if (!post) {
-            dispatch(fetchPopularPosts());
+            dispatch(fetchPostById(postId));
         }
-    }, [post, dispatch]);
 
-    if (postsStatus !== 'succeeded') {
-        return <div>{postsStatus}</div>
-    }
+    }, [postId, post, dispatch]);
+
+    if (singlePostStatus === 'loading') return <div>Loading...</div>;
+    if (singlePostStatus === 'failed') return <div>Error loading post: {singlePostError}</div>;
+    if (!post) return <div>Post not found</div>
 
     return (
         <div>

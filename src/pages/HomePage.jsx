@@ -1,12 +1,13 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { fetchPopularPosts, selectAllPostIds, selectPostsStatus } from "../features/posts/postsSlice";
+import { fetchPopularPosts, selectAllPostIds, selectPostsStatus, selectPostsError } from "../features/posts/postsSlice";
 import Post from "../features/posts/Post";
 
 const HomePage = () => {
     const dispatch = useDispatch();
     const postIds = useSelector(selectAllPostIds)
     const postsStatus = useSelector(selectPostsStatus);
+    const postsError = useSelector(selectPostsError);
 
     useEffect(() => {
         if (postsStatus === 'idle') {
@@ -14,9 +15,9 @@ const HomePage = () => {
         }
     }, [dispatch, postsStatus])
 
-    if (postsStatus !== 'succeeded') {
-        return(<div>{postsStatus}</div>);
-    }
+    if (postsStatus === 'loading') return <div>Loading...</div>;
+    if (postsStatus === 'failed') return <div>Error loading post: {postsError}</div>;
+    if (postIds.length === 0) return <div>No posts found</div>;
 
     return(
         <main className="flex flex-col items-center justify-start">
